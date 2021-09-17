@@ -1,6 +1,6 @@
 syntax = "proto3";
 package pb;
-option go_package = ".;pb";
+option go_package = "github.com/mateuslima90/grpc-go";
 
 message User {
     string id = 1;
@@ -10,4 +10,5 @@ message User {
 
 service UserService {
     rpc AddUser (User) returns (User);
+    rpc GetUser (User) returns (User);
 }
