@@ -14,9 +14,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-func startHttpServer(r *mux.Router) {
-	log.Fatal(http.ListenAndServe(":8081", r))
-}
+// func startHttpServer(r *mux.Router) {
+// 	log.Fatal(http.ListenAndServe(":8081", r))
+// }
 
 type Person struct {
 	Username string `json:"username"`
@@ -35,25 +35,25 @@ func getAllUser(writer http.ResponseWriter, request *http.Request) {
 
 func getUserByUsername(writer http.ResponseWriter, request *http.Request) {
 
-		params := mux.Vars(request)
-		fmt.Println(params)
-		writer.Header().Set("Content-Type", "application/json")
-		//json.NewEncoder(writer).Encode(p)
-		//id := strings.TrimPrefix(request.URL.Path, "/customer/")
-		//fmt.Println(id)
-		//fmt.Println(request.URL.Path)
-		//
-		// err := json.NewDecoder(request.Body).Decode(&p)
-		// if err != nil {
-		// 	http.Error(writer, err.Error(), http.StatusBadRequest)
-		// 	return
-		// }
-		// //res, _ := json.Marshal(p)
-		user := repository.GetUser(params["username"])
+	params := mux.Vars(request)
+	fmt.Println(params)
+	writer.Header().Set("Content-Type", "application/json")
+	//json.NewEncoder(writer).Encode(p)
+	//id := strings.TrimPrefix(request.URL.Path, "/customer/")
+	//fmt.Println(id)
+	//fmt.Println(request.URL.Path)
+	//
+	// err := json.NewDecoder(request.Body).Decode(&p)
+	// if err != nil {
+	// 	http.Error(writer, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+	// //res, _ := json.Marshal(p)
+	user := repository.GetUser(params["username"])
 
-		res2, _ := json.Marshal(user)
-		writer.WriteHeader(http.StatusOK)
-		writer.Write(res2)
+	res2, _ := json.Marshal(user)
+	writer.WriteHeader(http.StatusOK)
+	writer.Write(res2)
 }
 
 func authenticate(writer http.ResponseWriter, request *http.Request) {
@@ -97,22 +97,22 @@ func saveUser(writer http.ResponseWriter, request *http.Request) {
 
 func main() {
 
-	r := mux.NewRouter()
+	// r := mux.NewRouter()
 
-	r.HandleFunc("/users", getAllUser).Methods("GET")
+	// r.HandleFunc("/users", getAllUser).Methods("GET")
 
-	r.HandleFunc("/user/{username}", getUserByUsername).Methods("GET")
+	// r.HandleFunc("/user/{username}", getUserByUsername).Methods("GET")
 
-	r.HandleFunc("/user/authenticate", authenticate).Methods("POST")
+	// r.HandleFunc("/user/authenticate", authenticate).Methods("POST")
 
-	r.HandleFunc("/user", saveUser).Methods("POST")
+	// r.HandleFunc("/user", saveUser).Methods("POST")
 
-	lis, err := net.Listen("tcp", "localhost:50051")
+	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
 	}
 
-	go startHttpServer(r)
+	//go startHttpServer(r)
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterUserServiceServer(grpcServer, services.NewUserService())
@@ -121,3 +121,19 @@ func main() {
 		log.Fatalf("Could not serve: %v", err)
 	}
 }
+
+// // create listiner
+// lis, err := net.Listen("tcp", ":50005")
+// if err != nil {
+// 	log.Fatalf("failed to listen: %v", err)
+// }
+
+// // create grpc server
+// s := grpc.NewServer()
+// pb.RegisterStreamServiceServer(s, server{})
+
+// log.Println("start server")
+// // and start...
+// if err := s.Serve(lis); err != nil {
+// 	log.Fatalf("failed to serve: %v", err)
+// }
