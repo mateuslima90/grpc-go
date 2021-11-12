@@ -17,6 +17,11 @@ func NewUserService() *UserService {
 
 func (*UserService) AddUser(ctx context.Context, request *pb.User) (*pb.User, error) {
 
+	//var deadlineMs = flag.Int("deadline_ms", 20*1000, "Default deadline in milliseconds.")
+	//
+	//ctx, cancel := context.WithTimeout(ctx, time.Duration(*deadlineMs) * time.Millisecond)
+	//defer cancel()
+
 	repository.InsertUser2(request.GetName(), request.GetEmail(), request.GetName())
 
 	return &pb.User{
@@ -33,5 +38,4 @@ func (*UserService) GetUser(ctx context.Context, request *pb.User) (*pb.User, er
 		Name:  user.Name,
 		Email: user.Email,
 	}, nil
-
 }

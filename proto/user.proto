@@ -4,11 +4,19 @@ option go_package = "github.com/mateuslima90/grpc-go";
 
 message User {
     string id = 1;
-    string name = 2;
-    string email = 3;
+    string username = 2;
+    string name = 3;
+    string email = 4;
 }
+
+message Users {
+    repeated User Users = 1;
+}
+
+message Empty {}
 
 service UserService {
     rpc AddUser (User) returns (User);
     rpc GetUser (User) returns (User);
+    rpc GetAllUser (Empty) returns (Users);
 }

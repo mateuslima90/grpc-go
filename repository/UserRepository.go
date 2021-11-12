@@ -56,7 +56,8 @@ func InsertUser2(username string, name string, email string) {
 
 	if err != nil {
 
-		log.Fatal(err)
+		fmt.Println("Failed to add new user")
+		//log.Fatal(err)
 
 	}
 

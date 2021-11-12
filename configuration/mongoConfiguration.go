@@ -12,7 +12,7 @@ import (
 )
 
 func MongoConnection() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017/go_db"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://172.17.0.2:27017/go_db"))
 	if err != nil {
 		log.Fatal(err)
 	}
