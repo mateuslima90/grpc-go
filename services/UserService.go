@@ -61,11 +61,12 @@ func (*UserService) GetUserById(ctx context.Context, request *pb.User) (*pb.User
 func (*UserService) GetAllUser(ctx context.Context, request *pb.Empty) (*pb.Users, error) {
 	rUsers := repository.GetAllUser()
 	//fmt.Println(users)
-	var usersList []*pb.User
+	usersList := make([]*pb.User, len(rUsers))
 	for i := range rUsers {
 		//fmt.Println(users[i])
 		usersList[i] = &pb.User{Id: rUsers[i].ObjectID, Username: rUsers[i].Username, Name: rUsers[i].Name, Email: rUsers[i].Email}
 	}
-
-	return &pb.Users{}, nil
+	return &pb.Users{
+		Users: usersList,
+	}, nil
 }
