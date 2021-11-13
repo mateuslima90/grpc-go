@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/mateuslima90/grpc-go/pb"
 	"github.com/mateuslima90/grpc-go/repository"
@@ -22,20 +23,49 @@ func (*UserService) AddUser(ctx context.Context, request *pb.User) (*pb.User, er
 	//ctx, cancel := context.WithTimeout(ctx, time.Duration(*deadlineMs) * time.Millisecond)
 	//defer cancel()
 
-	repository.InsertUser2(request.GetName(), request.GetEmail(), request.GetName())
+	result := repository.InsertUser(request.GetUsername(), request.GetName(), request.GetEmail())
 
 	return &pb.User{
-		Id:    "123",
-		Name:  request.GetName(),
-		Email: request.GetEmail(),
+		Id:       result.ObjectID,
+		Username: result.Username,
+		Name:     result.Name,
+		Email:    result.Email,
 	}, nil
 }
 
-func (*UserService) GetUser(ctx context.Context, request *pb.User) (*pb.User, error) {
-	user := repository.GetUser(request.GetName())
+func (*UserService) GetUserByUsername(ctx context.Context, request *pb.User) (*pb.User, error) {
+	user := repository.GetUserByUsername(request.GetUsername())
 
 	return &pb.User{
-		Name:  user.Name,
-		Email: user.Email,
+		Id:       user.ObjectID,
+		Username: user.Username,
+		Name:     user.Name,
+		Email:    user.Email,
 	}, nil
+}
+
+func (*UserService) GetUserById(ctx context.Context, request *pb.User) (*pb.User, error) {
+	//user := repository.GetUser(request.GetName())
+
+	user := repository.GetUserById(request.Id)
+
+	fmt.Println(user)
+	return &pb.User{
+		Id:       user.ObjectID,
+		Username: user.Username,
+		Name:     user.Name,
+		Email:    user.Email,
+	}, nil
+}
+
+func (*UserService) GetAllUser(ctx context.Context, request *pb.Empty) (*pb.Users, error) {
+	rUsers := repository.GetAllUser()
+	//fmt.Println(users)
+	var usersList []*pb.User
+	for i := range rUsers {
+		//fmt.Println(users[i])
+		usersList[i] = &pb.User{Id: rUsers[i].ObjectID, Username: rUsers[i].Username, Name: rUsers[i].Name, Email: rUsers[i].Email}
+	}
+
+	return &pb.Users{}, nil
 }
