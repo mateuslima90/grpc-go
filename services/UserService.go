@@ -16,7 +16,11 @@ func NewUserService() *UserService {
 }
 
 func (*UserService) AddUser(ctx context.Context, request *pb.User) (*pb.User, error) {
-	result := repository.InsertUser(request.GetUsername(), request.GetName(), request.GetEmail())
+	result, errRepository := repository.InsertUser(request.GetUsername(), request.GetName(), request.GetEmail())
+
+	if errRepository != nil {
+		return nil, errRepository
+	}
 
 	return &pb.User{
 		Id:       result.ObjectID,
@@ -27,7 +31,11 @@ func (*UserService) AddUser(ctx context.Context, request *pb.User) (*pb.User, er
 }
 
 func (*UserService) GetUserByUsername(ctx context.Context, request *pb.User) (*pb.User, error) {
-	user := repository.GetUserByUsername(request.GetUsername())
+	user, errRepository := repository.GetUserByUsername(request.GetUsername())
+
+	if errRepository != nil {
+		return nil, errRepository
+	}
 
 	return &pb.User{
 		Id:       user.ObjectID,
@@ -38,7 +46,11 @@ func (*UserService) GetUserByUsername(ctx context.Context, request *pb.User) (*p
 }
 
 func (*UserService) GetUserById(ctx context.Context, request *pb.User) (*pb.User, error) {
-	user := repository.GetUserById(request.Id)
+	user, errRepository := repository.GetUserById(request.Id)
+
+	if errRepository != nil {
+		return nil, errRepository
+	}
 
 	return &pb.User{
 		Id:       user.ObjectID,
@@ -49,7 +61,11 @@ func (*UserService) GetUserById(ctx context.Context, request *pb.User) (*pb.User
 }
 
 func (*UserService) GetAllUser(ctx context.Context, request *pb.Empty) (*pb.Users, error) {
-	rUsers := repository.GetAllUser()
+	rUsers, errRepository := repository.GetAllUser()
+
+	if errRepository != nil {
+		return nil, errRepository
+	}
 
 	usersList := make([]*pb.User, len(rUsers))
 	for i := range rUsers {
