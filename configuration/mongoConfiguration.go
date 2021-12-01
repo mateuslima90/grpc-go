@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func MongoConnection() *mongo.Client {
+func MongoConnection() (*mongo.Client, error) {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://172.17.0.2:27017/go_db"))
 	if err != nil {
 		log.Fatal(err)
@@ -29,5 +29,5 @@ func MongoConnection() *mongo.Client {
 	}
 	fmt.Println(databases)
 
-	return client
+	return client, nil
 }

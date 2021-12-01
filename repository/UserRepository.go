@@ -30,31 +30,6 @@ type UserDTO struct {
 
 const DBNAME = "go_db"
 
-// func mongoConnection() {
-// 	mongoTemplate, err := configuration.MongoConnection()
-// 	if err != nil {
-// 		log.Fatalf("Could not be connect with database")
-// 	}
-
-// 	return mongoTemplate
-// }
-
-// func InsertUser(name string, email string) {
-// 	client := configuration.MongoConnection()
-// 	user := User{"mateuslima90@gmail.com", name, email}
-
-// 	collection := client.Database(DBNAME).Collection("users")
-
-// 	insertResult, err := collection.InsertOne(context.TODO(), user)
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	fmt.Println("Inserted user with ID:", insertResult.InsertedID)
-
-// }
-
 func InsertUser(username string, name string, email string) User {
 	client := configuration.MongoConnection()
 	user := UserDTO{Username: username, Name: name, Email: email}
