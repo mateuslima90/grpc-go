@@ -30,8 +30,13 @@ type UserDTO struct {
 
 const DBNAME = "go_db"
 
-func InsertUser(username string, name string, email string) User {
-	client := configuration.MongoConnection()
+func InsertUser(username string, name string, email string) (User, error) {
+	client, errConnection := configuration.MongoConnection()
+
+	if errConnection != nil {
+		return User{}, errConnection
+	}
+
 	user := UserDTO{Username: username, Name: name, Email: email}
 
 	collection := client.Database(DBNAME).Collection("users")
@@ -47,11 +52,16 @@ func InsertUser(username string, name string, email string) User {
 
 	oid := insertResult.InsertedID.(primitive.ObjectID).Hex()
 
-	return User{ObjectID: oid, Username: user.Username, Name: user.Name, Email: user.Email}
+	return User{ObjectID: oid, Username: user.Username, Name: user.Name, Email: user.Email}, nil
 }
 
-func GetUserByUsername(username string) User {
-	client := configuration.MongoConnection()
+func GetUserByUsername(username string) (User, error) {
+	client, errConnection := configuration.MongoConnection()
+
+	if errConnection != nil {
+		return User{}, errConnection
+	}
+
 	collection := client.Database(DBNAME).Collection("users")
 
 	filter := bson.M{"username": username}
@@ -61,27 +71,28 @@ func GetUserByUsername(username string) User {
 	err := collection.FindOne(context.TODO(), filter).Decode(&user)
 
 	if err != nil {
-
 		log.Fatal(err)
-
 	}
 
 	fmt.Println("Found user with email ", user.Email)
-	return user
+	return user, nil
 }
 
-func GetUserById(id string) User {
-	client := configuration.MongoConnection()
+func GetUserById(id string) (User, error) {
+	client, errConnection := configuration.MongoConnection()
+
+	if errConnection != nil {
+		return User{}, errConnection
+	}
+
 	collection := client.Database(DBNAME).Collection("users")
 
 	fmt.Println(id)
 
-	objectId, err := primitive.ObjectIDFromHex(id)
+	objectId, errObjectID := primitive.ObjectIDFromHex(id)
 
-	if err != nil {
-
-		log.Fatal(err)
-
+	if errObjectID != nil {
+		log.Fatal(errObjectID)
 	}
 
 	filter := bson.M{"_id": objectId}
@@ -94,40 +105,30 @@ func GetUserById(id string) User {
 	result.Decode(&user)
 
 	fmt.Println("Found user with email ", user.Email)
-	return user
+	return user, nil
 }
 
-func GetAllUser() []User {
-	client := configuration.MongoConnection()
+func GetAllUser() ([]User, error) {
+	client, errConnection := configuration.MongoConnection()
+
+	if errConnection != nil {
+		return []User{}, errConnection
+	}
+
 	collection := client.Database(DBNAME).Collection("users")
 	var users []User
 	//cursor, err := collection.Find(context.Background(), bson.M{})
 
 	// Find all users
-	userCursor, err := collection.Find(context.Background(), bson.M{})
-	if err != nil {
-		return nil
+	userCursor, errCursor := collection.Find(context.Background(), bson.M{})
+	if errCursor != nil {
+		return nil, errCursor
 	}
 
-	err = userCursor.All(context.Background(), &users)
-	if err != nil {
-		return nil
+	errUserCursor := userCursor.All(context.Background(), &users)
+	if errUserCursor != nil {
+		return nil, errUserCursor
 	}
 
-	return users
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer cursor.Close(context.TODO())
-
-	// for cursor.Next(context.TODO()) {
-	// 	var user bson.M
-	// 	if err = cursor.Decode(&user); err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	users = []User{}
-	// 	fmt.Println(users)
-	// }
-	// return users
+	return users, nil
 }
