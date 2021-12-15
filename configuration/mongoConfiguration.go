@@ -2,32 +2,34 @@ package configuration
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"os"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func MongoConnection() (*mongo.Client, error) {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://172.17.0.2:27017/go_db"))
+
+	uriDB := os.Getenv("URIDB")
+
+	uri := "mongodb://"+uriDB+"/go_db"
+	log.Println(uri)
+	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
+	//client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://172.17.0.3:27017/go_db"))
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("Uri connection mongodb://%v/go_db\n", uriDB)
+	log.Println("MongoDB Connect")
+
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 	//defer client.Disconnect(ctx)
-
-	databases, err := client.ListDatabaseNames(ctx, bson.M{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(databases)
 
 	return client, nil
 }
