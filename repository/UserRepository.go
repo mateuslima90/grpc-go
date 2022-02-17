@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/mateuslima90/grpc-go/entities"
 	"go.mongodb.org/mongo-driver/bson"
@@ -19,12 +20,13 @@ func NewMongo(connection *mongo.Client) UserRepository {
 }
 
 const DBNAME = "go_db"
+const COLLECTION = "users"
 
 func (u userMongoDB) CreateUser(username string, name string, email string) (entities.User, error) {
 
 	user := entities.UserDTO{Username: username, Name: name, Email: email}
 
-	collection := u.connection.Database(DBNAME).Collection("users.go")
+	collection := u.connection.Database(DBNAME).Collection(COLLECTION)
 
 	insertResult, err := collection.InsertOne(context.Background(), user)
 
@@ -42,7 +44,7 @@ func (u userMongoDB) CreateUser(username string, name string, email string) (ent
 
 func (u userMongoDB) GetUserByUsername(username string) (entities.User, error) {
 
-	collection := u.connection.Database(DBNAME).Collection("users.go")
+	collection := u.connection.Database(DBNAME).Collection(COLLECTION)
 
 	filter := bson.M{"username": username}
 
@@ -60,14 +62,15 @@ func (u userMongoDB) GetUserByUsername(username string) (entities.User, error) {
 
 func (u userMongoDB) GetUserById(id string) (entities.User, error) {
 
-	collection := u.connection.Database(DBNAME).Collection("users.go")
+	collection := u.connection.Database(DBNAME).Collection(COLLECTION)
 
 	fmt.Println(id)
 
 	objectId, errObjectID := primitive.ObjectIDFromHex(id)
 
 	if errObjectID != nil {
-		log.Fatal(errObjectID)
+		log.Println("Id bad formation")
+		//log.Fatal(errObjectID)
 	}
 
 	filter := bson.M{"_id": objectId}
@@ -78,6 +81,9 @@ func (u userMongoDB) GetUserById(id string) (entities.User, error) {
 
 	fmt.Println(result)
 	result.Decode(&user)
+	if user.Username == "" && user.Email == "" {
+		return user, errors.New("Id not found")
+	}
 
 	fmt.Println("Found user with email ", user.Email)
 	return user, nil
@@ -85,7 +91,7 @@ func (u userMongoDB) GetUserById(id string) (entities.User, error) {
 
 func (u userMongoDB) GetAllUser() ([]entities.User, error) {
 
-	collection := u.connection.Database(DBNAME).Collection("users.go")
+	collection := u.connection.Database(DBNAME).Collection(COLLECTION)
 	var users []entities.User
 	//cursor, err := collection.Find(context.Background(), bson.M{})
 
