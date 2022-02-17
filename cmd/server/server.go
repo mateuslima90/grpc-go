@@ -93,7 +93,7 @@ func main() {
 
 	//r := mux.NewRouter()
 	//
-	//r.HandleFunc("/users", getAllUser).Methods("GET")
+	//r.HandleFunc("/users.go", getAllUser).Methods("GET")
 	//
 	//r.HandleFunc("/user/{username}", getUserByUsername).Methods("GET")
 	//

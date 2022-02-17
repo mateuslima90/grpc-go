@@ -8,25 +8,10 @@ import (
 	"github.com/mateuslima90/grpc-go/configuration"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/mateuslima90/grpc-go/entities"
 )
 
-type User struct {
-	ObjectID string `bson:"_id" json:"_id"`
 
-	Username string `json:"Username,omitempty"`
-
-	Name string `json:"Name,omitempty"`
-
-	Email string `json:"Email,omitempty"`
-}
-
-type UserDTO struct {
-	Username string `json:"Username,omitempty"`
-
-	Name string `json:"Name,omitempty"`
-
-	Email string `json:"Email,omitempty"`
-}
 
 const DBNAME = "go_db"
 
@@ -39,7 +24,7 @@ func InsertUser(username string, name string, email string) (User, error) {
 
 	user := UserDTO{Username: username, Name: name, Email: email}
 
-	collection := client.Database(DBNAME).Collection("users")
+	collection := client.Database(DBNAME).Collection("users.go")
 
 	insertResult, err := collection.InsertOne(context.TODO(), user)
 
@@ -62,7 +47,7 @@ func GetUserByUsername(username string) (User, error) {
 		return User{}, errConnection
 	}
 
-	collection := client.Database(DBNAME).Collection("users")
+	collection := client.Database(DBNAME).Collection("users.go")
 
 	filter := bson.M{"username": username}
 
@@ -85,7 +70,7 @@ func GetUserById(id string) (User, error) {
 		return User{}, errConnection
 	}
 
-	collection := client.Database(DBNAME).Collection("users")
+	collection := client.Database(DBNAME).Collection("users.go")
 
 	fmt.Println(id)
 
@@ -115,11 +100,11 @@ func GetAllUser() ([]User, error) {
 		return []User{}, errConnection
 	}
 
-	collection := client.Database(DBNAME).Collection("users")
+	collection := client.Database(DBNAME).Collection("users.go")
 	var users []User
 	//cursor, err := collection.Find(context.Background(), bson.M{})
 
-	// Find all users
+	// Find all users.go
 	userCursor, errCursor := collection.Find(context.Background(), bson.M{})
 	if errCursor != nil {
 		return nil, errCursor

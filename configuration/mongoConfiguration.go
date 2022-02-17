@@ -15,7 +15,6 @@ func MongoConnection() (*mongo.Client, error) {
 	uriDB := os.Getenv("URIDB")
 
 	uri := "mongodb://"+uriDB+"/go_db"
-	log.Println(uri)
 	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	//client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://172.17.0.3:27017/go_db"))
 	if err != nil {
@@ -29,7 +28,6 @@ func MongoConnection() (*mongo.Client, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//defer client.Disconnect(ctx)
 
 	return client, nil
 }
