@@ -16,6 +16,7 @@ func NewUserService() *UserService {
 }
 
 func (*UserService) AddUser(ctx context.Context, request *pb.User) (*pb.User, error) {
+
 	result, errRepository := repository.InsertUser(request.GetUsername(), request.GetName(), request.GetEmail())
 
 	if errRepository != nil {

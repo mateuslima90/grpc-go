@@ -3,30 +3,30 @@ package repository
 import (
 	"context"
 	"fmt"
-	"log"
-
-	"github.com/mateuslima90/grpc-go/configuration"
+	"github.com/mateuslima90/grpc-go/entities"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"github.com/mateuslima90/grpc-go/entities"
+	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 )
 
+type userMongoDB struct {
+	connection *mongo.Client
+}
 
+func NewMongo(connection *mongo.Client) UserRepository {
+	return &userMongoDB{connection: connection}
+}
 
 const DBNAME = "go_db"
 
-func InsertUser(username string, name string, email string) (User, error) {
-	client, errConnection := configuration.MongoConnection()
+func (u userMongoDB) CreateUser(username string, name string, email string) (entities.User, error) {
 
-	if errConnection != nil {
-		return User{}, errConnection
-	}
+	user := entities.UserDTO{Username: username, Name: name, Email: email}
 
-	user := UserDTO{Username: username, Name: name, Email: email}
+	collection := u.connection.Database(DBNAME).Collection("users.go")
 
-	collection := client.Database(DBNAME).Collection("users.go")
-
-	insertResult, err := collection.InsertOne(context.TODO(), user)
+	insertResult, err := collection.InsertOne(context.Background(), user)
 
 	if err != nil {
 		fmt.Println("Failed to add new user")
@@ -37,23 +37,18 @@ func InsertUser(username string, name string, email string) (User, error) {
 
 	oid := insertResult.InsertedID.(primitive.ObjectID).Hex()
 
-	return User{ObjectID: oid, Username: user.Username, Name: user.Name, Email: user.Email}, nil
+	return entities.User{ObjectID: oid, Username: user.Username, Name: user.Name, Email: user.Email}, nil
 }
 
-func GetUserByUsername(username string) (User, error) {
-	client, errConnection := configuration.MongoConnection()
+func (u userMongoDB) GetUserByUsername(username string) (entities.User, error) {
 
-	if errConnection != nil {
-		return User{}, errConnection
-	}
-
-	collection := client.Database(DBNAME).Collection("users.go")
+	collection := u.connection.Database(DBNAME).Collection("users.go")
 
 	filter := bson.M{"username": username}
 
-	var user User
+	var user entities.User
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&user)
+	err := collection.FindOne(context.Background(), filter).Decode(&user)
 
 	if err != nil {
 		log.Fatal(err)
@@ -63,14 +58,9 @@ func GetUserByUsername(username string) (User, error) {
 	return user, nil
 }
 
-func GetUserById(id string) (User, error) {
-	client, errConnection := configuration.MongoConnection()
+func (u userMongoDB) GetUserById(id string) (entities.User, error) {
 
-	if errConnection != nil {
-		return User{}, errConnection
-	}
-
-	collection := client.Database(DBNAME).Collection("users.go")
+	collection := u.connection.Database(DBNAME).Collection("users.go")
 
 	fmt.Println(id)
 
@@ -82,7 +72,7 @@ func GetUserById(id string) (User, error) {
 
 	filter := bson.M{"_id": objectId}
 
-	var user User
+	var user entities.User
 
 	result := collection.FindOne(context.Background(), filter)
 
@@ -93,15 +83,10 @@ func GetUserById(id string) (User, error) {
 	return user, nil
 }
 
-func GetAllUser() ([]User, error) {
-	client, errConnection := configuration.MongoConnection()
+func (u userMongoDB) GetAllUser() ([]entities.User, error) {
 
-	if errConnection != nil {
-		return []User{}, errConnection
-	}
-
-	collection := client.Database(DBNAME).Collection("users.go")
-	var users []User
+	collection := u.connection.Database(DBNAME).Collection("users.go")
+	var users []entities.User
 	//cursor, err := collection.Find(context.Background(), bson.M{})
 
 	// Find all users.go
