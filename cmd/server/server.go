@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/mateuslima90/grpc-go/configuration"
 	"github.com/mateuslima90/grpc-go/pb"
+	"github.com/mateuslima90/grpc-go/repository"
 	"github.com/mateuslima90/grpc-go/services"
 	"google.golang.org/grpc"
 	"log"
@@ -109,7 +111,9 @@ func main() {
 	//go startHttpServer(r)
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterUserServiceServer(grpcServer, services.NewUserService())
+	conn, err := configuration.MongoConnection()
+	repo := repository.NewMongo(conn)
+	pb.RegisterUserServiceServer(grpcServer, services.NewUserService(repo))
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Could not serve: %v", err)

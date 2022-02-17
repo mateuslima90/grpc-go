@@ -18,7 +18,7 @@ func MongoConnection() (*mongo.Client, error) {
 	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	//client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://172.17.0.3:27017/go_db"))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("MONGOCONNECTION: mongo.NewClient", err)
 	}
 	log.Printf("Uri connection mongodb://%v/go_db\n", uriDB)
 	log.Println("MongoDB Connect")
@@ -26,8 +26,9 @@ func MongoConnection() (*mongo.Client, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("MONGOCONNECTION: CREATING A CONNECTION", err)
 	}
 
 	return client, nil
 }
+
