@@ -2,22 +2,22 @@ package services
 
 import (
 	"context"
-
 	"github.com/mateuslima90/grpc-go/pb"
 	"github.com/mateuslima90/grpc-go/repository"
 )
 
 type UserService struct {
 	pb.UnimplementedUserServiceServer
+	repository repository.UserRepository
 }
 
-func NewUserService() *UserService {
-	return &UserService{}
+func NewUserService(repository repository.UserRepository) *UserService {
+	return &UserService{repository: repository}
 }
 
-func (*UserService) AddUser(ctx context.Context, request *pb.User) (*pb.User, error) {
+func (us *UserService) AddUser(ctx context.Context, request *pb.User) (*pb.User, error) {
 
-	result, errRepository := repository.InsertUser(request.GetUsername(), request.GetName(), request.GetEmail())
+	result, errRepository := us.repository.CreateUser(request.GetUsername(), request.GetName(), request.GetEmail())
 
 	if errRepository != nil {
 		return nil, errRepository
@@ -31,8 +31,8 @@ func (*UserService) AddUser(ctx context.Context, request *pb.User) (*pb.User, er
 	}, nil
 }
 
-func (*UserService) GetUserByUsername(ctx context.Context, request *pb.User) (*pb.User, error) {
-	user, errRepository := repository.GetUserByUsername(request.GetUsername())
+func (us *UserService) GetUserByUsername(ctx context.Context, request *pb.User) (*pb.User, error) {
+	user, errRepository := us.repository.GetUserByUsername(request.GetUsername())
 
 	if errRepository != nil {
 		return nil, errRepository
@@ -46,8 +46,8 @@ func (*UserService) GetUserByUsername(ctx context.Context, request *pb.User) (*p
 	}, nil
 }
 
-func (*UserService) GetUserById(ctx context.Context, request *pb.User) (*pb.User, error) {
-	user, errRepository := repository.GetUserById(request.Id)
+func (us *UserService) GetUserById(ctx context.Context, request *pb.User) (*pb.User, error) {
+	user, errRepository := us.repository.GetUserById(request.Id)
 
 	if errRepository != nil {
 		return nil, errRepository
@@ -61,8 +61,8 @@ func (*UserService) GetUserById(ctx context.Context, request *pb.User) (*pb.User
 	}, nil
 }
 
-func (*UserService) GetAllUser(ctx context.Context, request *pb.Empty) (*pb.Users, error) {
-	rUsers, errRepository := repository.GetAllUser()
+func (us *UserService) GetAllUser(ctx context.Context, request *pb.Empty) (*pb.Users, error) {
+	rUsers, errRepository := us.repository.GetAllUser()
 
 	if errRepository != nil {
 		return nil, errRepository
